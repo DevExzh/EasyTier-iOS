@@ -9,20 +9,27 @@ struct AdaptiveNavigation<PrimaryView, SecondaryView, Enum>: View where PrimaryV
     @ViewBuilder var primaryColumn: PrimaryView
     @ViewBuilder var secondaryColumn: SecondaryView
     @Binding var showNav: Enum?
-    
+
     init(_ primary: PrimaryView, _ secondary: SecondaryView, showNav: Binding<Enum?>) {
         primaryColumn = primary
         secondaryColumn = secondary
         _showNav = showNav
     }
-    
+
     var body: some View {
         Group {
             if sizeClass == .regular {
                 HStack(spacing: 0) {
                     primaryColumn
                         .frame(maxWidth: columnMaxWidth)
-                    secondaryColumn
+                    ZStack(alignment: .topLeading) {
+                        secondaryColumn
+#if os(iOS)
+                        KeyboardDismissOverlay()
+                            .allowsHitTesting(true)
+#endif
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } else {
                 primaryColumn
@@ -51,3 +58,58 @@ extension View {
         }
     }
 }
+
+#if os(iOS)
+struct KeyboardDismissOverlay: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+
+        let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap))
+        tap.cancelsTouchesInView = false
+        tap.delegate = context.coordinator
+        view.addGestureRecognizer(tap)
+
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        @objc func handleTap() {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            guard let overlayView = gestureRecognizer.view,
+                  let window = overlayView.window else { return false }
+
+            let locationInOverlay = touch.location(in: overlayView)
+            let locationInWindow = overlayView.convert(locationInOverlay, to: window)
+
+            // Temporarily disable the overlay so hitTest can see through it
+            let wasEnabled = overlayView.isUserInteractionEnabled
+            overlayView.isUserInteractionEnabled = false
+            let hitView = window.hitTest(locationInWindow, with: nil)
+            overlayView.isUserInteractionEnabled = wasEnabled
+
+            if let hitView = hitView {
+                var current: UIView? = hitView
+                while let v = current {
+                    if v is UITextField || v is UITextView {
+                        return false
+                    }
+                    current = v.superview
+                }
+            }
+
+            return true
+        }
+    }
+}
+#endif
