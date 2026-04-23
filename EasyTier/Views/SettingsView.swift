@@ -67,6 +67,7 @@ struct SettingsView<Manager: NetworkExtensionManagerProtocol>: View {
             .formStyle(.grouped)
 #endif
         }
+        .dismissKeyboardOnTap()
         .alert(item: $settingsErrorMessage) { msg in
             Alert(title: Text("common.error"), message: Text(msg.text))
         }

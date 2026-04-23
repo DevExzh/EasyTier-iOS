@@ -89,6 +89,7 @@ struct DashboardView<Manager: NetworkExtensionManagerProtocol>: View {
 #endif
             }
         }
+        .dismissKeyboardOnTap()
     }
 
     func createProfile() {
@@ -253,6 +254,7 @@ struct DashboardView<Manager: NetworkExtensionManagerProtocol>: View {
             .formStyle(.grouped)
             .navigationTitle("device.management")
             .adaptiveNavigationBarTitleInline()
+            .dismissKeyboardOnTap()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {

@@ -40,5 +40,15 @@ extension View {
         return self
 #endif
     }
+
+    func dismissKeyboardOnTap() -> some View {
+#if os(iOS)
+        return self.onTapGesture {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+#else
+        return self
+#endif
+    }
 }
 

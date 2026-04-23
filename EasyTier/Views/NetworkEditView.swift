@@ -26,6 +26,7 @@ struct NetworkEditView: View {
             NavigationLink("port_forwards", value: EditPane.portForwards)
         }
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
 #else
         Form {
             basicSettings
@@ -63,6 +64,7 @@ struct NetworkEditView: View {
             }
         }
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
     }
 
     var basicSettings: some View {
@@ -280,6 +282,7 @@ struct NetworkEditView: View {
         }
         .navigationTitle("advanced_settings")
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
         .formStyle(.grouped)
     }
     
@@ -330,6 +333,7 @@ struct NetworkEditView: View {
         }
         .navigationTitle("dns_settings")
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
         .formStyle(.grouped)
     }
     
@@ -372,6 +376,7 @@ struct NetworkEditView: View {
         }
         .navigationTitle("route_settings")
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
         .sheet(isPresented: $showProxyCIDREditor) {
             proxyCIDREditor
         }
@@ -441,6 +446,7 @@ struct NetworkEditView: View {
         }
         .navigationTitle("port_forwards")
         .scrollDismissesKeyboard(.immediately)
+        .dismissKeyboardOnTap()
         .formStyle(.grouped)
     }
     
@@ -496,6 +502,7 @@ struct NetworkEditView: View {
             .formStyle(.grouped)
             .navigationTitle("common_text.edit_proxy_cidr")
             .adaptiveNavigationBarTitleInline()
+            .dismissKeyboardOnTap()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
