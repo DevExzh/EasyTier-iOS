@@ -11,12 +11,14 @@ let columnMinWidth: CGFloat = 300
 struct ContentView<Manager: NetworkExtensionManagerProtocol>: View {
     @ObservedObject var manager: Manager
     @StateObject private var selectedSession = SelectedProfileSession()
-    
-#if os(macOS)
+
     enum TabItem: Hashable {
         case dashboard, log, settings
     }
+#if os(macOS)
     @State private var selectedTab: TabItem? = .dashboard
+#else
+    @State private var selectedTab: TabItem = .dashboard
 #endif
     
     var body: some View {
@@ -57,23 +59,29 @@ struct ContentView<Manager: NetworkExtensionManagerProtocol>: View {
         .navigationTitle("EasyTier")
         .frame(minWidth: 500, minHeight: 300)
 #else
-            TabView {
+            TabView(selection: $selectedTab) {
                 DashboardView(manager: manager, selectedSession: selectedSession)
                     .tabItem {
                         Image(systemName: "list.bullet.below.rectangle")
                         Text("main.dashboard")
                     }
+                    .tag(TabItem.dashboard)
                 LogView()
                     .tabItem {
                         Image(systemName: "rectangle.and.text.magnifyingglass")
                         Text("logging")
                     }
+                    .tag(TabItem.log)
                 SettingsView(manager: manager)
                     .tabItem {
                         Image(systemName: "gearshape")
                             .environment(\.symbolVariants, .none)
                         Text("settings")
                     }
+                    .tag(TabItem.settings)
+            }
+            .onChange(of: selectedTab) { _ in
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
 #endif
     }
